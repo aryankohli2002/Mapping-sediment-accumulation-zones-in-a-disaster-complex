@@ -45,18 +45,18 @@ for i in range(0, len(coordinates) - 1, 2):
 elevation_array = np.array([])
 
 # Sample elevation data for each grid cell
-for cell in grid:
+for i, cell in enumerate(grid):
     try:
-        cell_elevation = elevation.sample(region=cell, scale=300).getInfo()
+        cell_elevation = elevation.sample(region=cell, scale=100).getInfo()
 
         # Check if 'features' key exists and has non-empty list
         if 'features' in cell_elevation and cell_elevation['features']:
             cell_array = np.array(cell_elevation['features'][0]['properties']['elevation'])
             elevation_array = np.concatenate((elevation_array, cell_array))
         else:
-            print("Warning: Empty or invalid elevation data for the current cell. Skipping.")
+            print(f"Warning: Empty or invalid elevation data for cell {i}. Skipping.")
     except Exception as e:
-        print(f"Error: {str(e)} for the current cell. Skipping.")
+        print(f"Error: {str(e)} for cell {i}. Skipping.")
 
 
 # Check if elevation_array is not empty
