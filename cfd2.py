@@ -60,7 +60,7 @@ for cell in grid:
 
 
 # Check if elevation_array is not empty
-if elevation_array.size > 0:
+if elevation_array.size > 0 and np.issubdtype(elevation_array.dtype, np.number):
     # Define the terrain profile using the elevation data
     terrain = elevation_array - np.min(elevation_array)
 
@@ -98,7 +98,4 @@ if elevation_array.size > 0:
     plt.ylabel('Fluid Depth')
     plt.title('Fluid Depth Profile over Terrain')
     plt.show()
-else:
-    print("Error: Unable to retrieve valid elevation data from Earth Engine.")
-
 
