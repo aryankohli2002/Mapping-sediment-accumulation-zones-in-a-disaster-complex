@@ -25,22 +25,29 @@ num_chunks = 10
 # Get the bounds of the geometry
 bounds = geometry.bounds()
 
-# Divide the bounds into a grid
-grid = ee.Geometry.Rectangle(bounds).divide(num_chunks, num_chunks)
+# Extract coordinates from the bounds
+coordinates = bounds.coordinates().get(0).getInfo()
+
+# Create a grid of rectangles
+grid = []
+for i in range(num_chunks):
+    for j in range(num_chunks):
+        cell = ee.Geometry.Rectangle([
+            coordinates[i][j],
+            coordinates[i + 1][j],
+            coordinates[i + 1][j + 1],
+            coordinates[i][j + 1],
+        ])
+        grid.append(cell)
 
 # Initialize an empty array to store elevation data
 elevation_array = np.array([])
 
 # Sample elevation data for each grid cell
-for i in range(num_chunks):
-    for j in range(num_chunks):
-        cell = ee.Geometry.Rectangle(
-            [grid.coordinates().get(i).get(j), 
-             grid.coordinates().get(i + 1).get(j + 1)])
-        
-        cell_elevation = elevation.sample(region=cell, scale=300).getInfo()
-        cell_array = np.array(cell_elevation['features'][0]['properties']['elevation'])
-        elevation_array = np.concatenate((elevation_array, cell_array))
+for cell in grid:
+    cell_elevation = elevation.sample(region=cell, scale=300).getInfo()
+    cell_array = np.array(cell_elevation['features'][0]['properties']['elevation'])
+    elevation_array = np.concatenate((elevation_array, cell_array))
 
 # Print the elevation_array to check if it contains valid data
 print(elevation_array)
