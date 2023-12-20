@@ -30,8 +30,8 @@ coordinates = bounds.coordinates().getInfo()[0]
 
 # Create a grid of rectangles
 grid = []
-for i in range(num_chunks):
-    for j in range(num_chunks):
+for i in range(0, len(coordinates) - 1, 2):
+    for j in range(0, len(coordinates[i]) - 1, 2):
         cell = ee.Geometry.Rectangle([
             coordinates[i][j],
             coordinates[i][j + 1],
@@ -39,8 +39,6 @@ for i in range(num_chunks):
             coordinates[i + 1][j],
         ])
         grid.append(cell)
-
-
 
 
 # Initialize elevation_array
