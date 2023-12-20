@@ -22,17 +22,25 @@ elevation = dataset.select('elevation')
 # Specify the number of chunks
 num_chunks = 10
 
-# Divide the geometry into chunks
-chunks = geometry.cut(num_chunks)
+# Get the bounds of the geometry
+bounds = geometry.bounds()
+
+# Divide the bounds into a grid
+grid = ee.Geometry.Rectangle(bounds).divide(num_chunks, num_chunks)
 
 # Initialize an empty array to store elevation data
 elevation_array = np.array([])
 
-# Sample elevation data for each chunk
-for chunk in chunks:
-    chunk_elevation = elevation.sample(region=chunk, scale=300).getInfo()
-    chunk_array = np.array(chunk_elevation['features'][0]['properties']['elevation'])
-    elevation_array = np.concatenate((elevation_array, chunk_array))
+# Sample elevation data for each grid cell
+for i in range(num_chunks):
+    for j in range(num_chunks):
+        cell = ee.Geometry.Rectangle(
+            [grid.coordinates().get(i).get(j), 
+             grid.coordinates().get(i + 1).get(j + 1)])
+        
+        cell_elevation = elevation.sample(region=cell, scale=300).getInfo()
+        cell_array = np.array(cell_elevation['features'][0]['properties']['elevation'])
+        elevation_array = np.concatenate((elevation_array, cell_array))
 
 # Print the elevation_array to check if it contains valid data
 print(elevation_array)
