@@ -47,16 +47,20 @@ elevation_array = np.array([])
 # Sample elevation data for each grid cell
 for i, cell in enumerate(grid):
     try:
-        cell_elevation = elevation.sample(region=cell, scale=100).getInfo()
+        # Reduce region to get statistics (mean elevation)
+        stats = elevation.reduceRegion(reducer=ee.Reducer.mean(), geometry=cell, scale=100)
 
-        # Check if 'features' key exists and has non-empty list
-        if 'features' in cell_elevation and cell_elevation['features']:
-            cell_array = np.array(cell_elevation['features'][0]['properties']['elevation'])
-            elevation_array = np.concatenate((elevation_array, cell_array))
+        # Check if the statistics are available
+        if stats.getInfo():
+            cell_mean_elevation = stats.get('elevation')
+            elevation_array = np.append(elevation_array, cell_mean_elevation)
         else:
             print(f"Warning: Empty or invalid elevation data for cell {i}. Skipping.")
     except Exception as e:
         print(f"Error: {str(e)} for cell {i}. Skipping.")
+
+
+
 
 
 # Check if elevation_array is not empty
