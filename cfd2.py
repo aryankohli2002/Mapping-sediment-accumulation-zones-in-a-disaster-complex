@@ -48,10 +48,16 @@ elevation_array = np.array([])
 for i, cell in enumerate(grid):
     try:
         # Reduce region to get statistics (mean elevation)
-        stats = elevation.reduceRegion(reducer=ee.Reducer.mean(), geometry=cell, scale=100)
+        stats = elevation.reduceRegion(
+            reducer=ee.Reducer.mean(),
+            geometry=cell,
+            scale=300,
+            maxPixels=1e13,  # Increase maxPixels
+            bestEffort=True  # Set bestEffort to true
+        )
 
         # Check if the statistics are available
-        if stats.getInfo():
+        if 'elevation' in stats.getInfo():
             cell_mean_elevation = stats.get('elevation')
             elevation_array = np.append(elevation_array, cell_mean_elevation)
         else:
